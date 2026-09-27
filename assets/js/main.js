@@ -123,18 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Open first FAQ item by default
-  if (accordionItems.length > 0) {
-    const firstItem = accordionItems[0];
-    const firstHeader = firstItem.querySelector('.accordion-header');
-    const firstPanel = firstItem.querySelector('.accordion-panel');
-    firstItem.classList.add('active');
-    firstHeader?.setAttribute('aria-expanded', 'true');
-    if (firstPanel) {
-      firstPanel.style.maxHeight = firstPanel.scrollHeight + 'px';
-    }
-  }
-
   // 5. Refined Scroll Animations via IntersectionObserver
   const observerOptions = {
     threshold: 0.08,
