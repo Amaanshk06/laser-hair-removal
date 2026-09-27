@@ -1,6 +1,6 @@
 /**
  * UBERCARE BLING - LASER HAIR REDUCTION LANDING PAGE
- * Interactive script: Modal, FAQ Accordion, Mobile Menu, Form Handling & Animations
+ * Interactive script: Header scroll, Mobile Drawer, FAQ Accordion & Scroll Animations
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,14 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileToggle = document.querySelector('.mobile-menu-toggle');
   const mobileDrawer = document.querySelector('.mobile-drawer');
   const mobileClose = document.querySelector('.mobile-drawer-close');
-  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-  
-  const modalOverlay = document.getElementById('bookingModal');
-  const modalClose = document.getElementById('modalCloseBtn');
-  const modalForm = document.getElementById('appointmentForm');
-  const modalSuccess = document.getElementById('modalSuccessState');
-  const treatmentAreaSelect = document.getElementById('treatmentArea');
-  const resetFormBtn = document.getElementById('resetBookingBtn');
   
   // 1. Header scroll effect
   const handleScroll = () => {
@@ -50,121 +42,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Close drawer on link click
-  mobileNavLinks.forEach(link => {
-    link.addEventListener('click', closeDrawer);
-  });
+  // Close drawer on link click and handle smooth scrolling
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      const targetHash = anchor.getAttribute('href');
+      if (!targetHash || targetHash === '#') return;
 
-  // 3. Appointment Modal Handling
-  const openModal = (areaName = '') => {
-    if (modalOverlay) {
-      modalOverlay.classList.add('open');
-      modalOverlay.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      
-      // If an area was passed, pre-select it
-      if (areaName && treatmentAreaSelect) {
-        for (let i = 0; i < treatmentAreaSelect.options.length; i++) {
-          if (treatmentAreaSelect.options[i].value.toLowerCase() === areaName.toLowerCase()) {
-            treatmentAreaSelect.selectedIndex = i;
-            break;
-          }
-        }
-      }
-
-      // Focus first input
-      setTimeout(() => {
-        const firstInput = modalOverlay.querySelector('input:not([type="hidden"])');
-        firstInput?.focus();
-      }, 100);
-    }
-  };
-
-  const closeModal = () => {
-    if (modalOverlay) {
-      modalOverlay.classList.remove('open');
-      modalOverlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-  };
-
-  // Open modal buttons
-  document.querySelectorAll('[data-modal-open="booking"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
       e.preventDefault();
       closeDrawer();
-      const area = btn.getAttribute('data-area') || '';
-      openModal(area);
+
+      if (targetHash === '#top') {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+        if (history.pushState) {
+          history.pushState(null, null, ' ');
+        }
+        return;
+      }
+
+      const targetEl = document.querySelector(targetHash);
+      if (targetEl) {
+        const headerEl = document.querySelector('.site-header');
+        const headerHeight = headerEl ? headerEl.offsetHeight : 70;
+        const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - (headerHeight + 10);
+
+        window.scrollTo({
+          top: Math.max(0, targetPos),
+          behavior: 'smooth'
+        });
+
+        if (history.pushState) {
+          history.pushState(null, null, targetHash);
+        }
+      }
     });
   });
 
-  modalClose?.addEventListener('click', closeModal);
-
-  // Close modal when clicking outside dialog
-  modalOverlay?.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) {
-      closeModal();
-    }
-  });
-
-  // 4. Keyboard Navigation (ESC to close)
+  // 3. Keyboard Navigation (ESC to close)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (modalOverlay?.classList.contains('open')) {
-        closeModal();
-      }
       if (mobileDrawer?.classList.contains('open')) {
         closeDrawer();
       }
     }
   });
 
-  // 5. Booking Form Submission
-  modalForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const fullName = document.getElementById('fullName')?.value.trim();
-    const phone = document.getElementById('phone')?.value.trim();
-    const area = treatmentAreaSelect?.value;
-    const date = document.getElementById('prefDate')?.value;
-    const time = document.getElementById('prefTime')?.value;
-
-    if (!fullName || !phone) {
-      alert('Please fill in your name and phone number so we can reach you.');
-      return;
-    }
-
-    // Prepare WhatsApp fallback link with user's requested details
-    const waText = encodeURIComponent(
-      `Hello Ubercare Bling, I would like to book a Laser Hair Reduction consultation.\n\n` +
-      `Name: ${fullName}\n` +
-      `Phone: ${phone}\n` +
-      `Preferred Area: ${area || 'Consultation'}\n` +
-      `Preferred Date: ${date || 'Earliest available'}\n` +
-      `Time: ${time || 'Anytime'}`
-    );
-    const waBtn = document.getElementById('whatsappConfirmBtn');
-    if (waBtn) {
-      waBtn.href = `https://wa.me/919168668383?text=${waText}`;
-    }
-
-    // Switch to success view
-    modalForm.style.display = 'none';
-    if (modalSuccess) {
-      modalSuccess.style.display = 'block';
-    }
-  });
-
-  // Reset booking form to book another or edit
-  resetFormBtn?.addEventListener('click', () => {
-    if (modalForm && modalSuccess) {
-      modalForm.reset();
-      modalForm.style.display = 'block';
-      modalSuccess.style.display = 'none';
-    }
-  });
-
-  // 6. FAQ Accordion Handling
+  // 4. FAQ Accordion Handling
   const accordionItems = document.querySelectorAll('.accordion-item');
 
   accordionItems.forEach(item => {
@@ -210,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 7. Refined Scroll Animations via IntersectionObserver
+  // 5. Refined Scroll Animations via IntersectionObserver
   const observerOptions = {
     threshold: 0.08,
     rootMargin: '0px 0px -30px 0px'
